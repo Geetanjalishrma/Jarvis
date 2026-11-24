@@ -5,6 +5,7 @@
  * Plus <StudyMiniBar/>: a small floating bar so the timer/music stay controllable on other pages.
  */
 import { useRef, useState, useEffect } from 'react'
+import { createPortal } from 'react-dom'
 import { useStudy, study, fmtTime, statsFor, PRESETS, SCENES } from './studyStore'
 import Scene, { RainLayer } from './StudyScenes'
 import { Heading } from './ui'
@@ -130,20 +131,48 @@ function Slider({ label, value, onChange }) {
 
 function SceneryTab({ s }) {
   const stageRef = useRef(null)
-  const [full, setFull] = useState(false)
+  const [native, setNative] = useState(false)   // real browser fullscreen (Android, desktop, iPad)
+  const [pseudo, setPseudo] = useState(false)   // fallback fullscreen (iPhone Safari has no Fullscreen API)
+  const full = native || pseudo
   const [yt, setYt] = useState('')
   const [panel, setPanel] = useState(true)
   const scene = SCENES.find(x => x.id === s.scene) || SCENES[0]
 
   useEffect(() => {
-    const h = () => setFull(!!document.fullscreenElement)
+    const h = () => setNative(!!(document.fullscreenElement || document.webkitFullscreenElement))
     document.addEventListener('fullscreenchange', h)
-    return () => document.removeEventListener('fullscreenchange', h)
+    document.addEventListener('webkitfullscreenchange', h)
+    return () => {
+      document.removeEventListener('fullscreenchange', h)
+      document.removeEventListener('webkitfullscreenchange', h)
+    }
   }, [])
-  const toggleFull = () => { if (document.fullscreenElement) document.exitFullscreen?.(); else stageRef.current?.requestFullscreen?.() }
 
-  return (
-    <>
+  // fallback mode: lock page scroll behind the overlay, Esc closes it
+  useEffect(() => {
+    if (!pseudo) return
+    const onKey = e => { if (e.key === 'Escape') setPseudo(false) }
+    document.addEventListener('keydown', onKey)
+    document.body.classList.add('sw-noscroll')
+    return () => {
+      document.removeEventListener('keydown', onKey)
+      document.body.classList.remove('sw-noscroll')
+    }
+  }, [pseudo])
+
+  const toggleFull = async () => {
+    if (pseudo) { setPseudo(false); return }
+    if (document.fullscreenElement || document.webkitFullscreenElement) {
+      (document.exitFullscreen || document.webkitExitFullscreen)?.call(document)
+      return
+    }
+    const el = stageRef.current
+    const req = el?.requestFullscreen || el?.webkitRequestFullscreen
+    if (!req) { setPseudo(true); return }          // iPhone / unsupported browsers
+    try { await req.call(el) } catch { setPseudo(true) }
+  }
+
+  const stage = (
       <div ref={stageRef} className={`sw-stage ${full ? 'full' : ''} ${s.phase}`}>
         <Scene id={s.scene} />
         <RainLayer intensity={s.mix.rain} />
@@ -182,6 +211,12 @@ function SceneryTab({ s }) {
           </div>
         )}
       </div>
+  )
+
+  return (
+    <>
+      {/* in fallback mode the stage is moved to <body> so nothing in the page can clip or offset it */}
+      {pseudo ? createPortal(stage, document.body) : stage}
 
       <div className="sw-scenes" role="listbox" aria-label="Choose a scene">
         {SCENES.map(sc => (
