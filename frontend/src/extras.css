@@ -351,3 +351,60 @@
 .day-row .seg{flex-wrap:wrap}
 .calendar-card .calendar-days button > i.absent,.calendar-card .calendar-legend i.absent{background:#d9534f}
 .calendar-card .calendar-days button > i.cancelled,.calendar-card .calendar-legend i.cancelled{background:#9aa1ab}
+
+/* ═════════ Subject form: every field labelled ═════════ */
+.sub-block{padding:16px;border:1px solid var(--line);border-radius:16px;background:var(--card);margin-bottom:12px}
+.sub-block-title{font-size:11px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:var(--accent-text);margin-bottom:12px}
+.sub-fields{display:grid;grid-template-columns:repeat(3,1fr);gap:14px 12px}
+.sub-fields label{display:grid;gap:5px;align-content:start;min-width:0}
+.sub-fields label>span{font-size:12.5px;font-weight:700;color:var(--text)}
+.sub-fields label>span em{font-style:normal;font-weight:500;color:var(--muted);margin-left:5px;font-size:11.5px}
+.sub-fields input{min-height:44px;width:100%;padding:0 12px;border:1px solid var(--line);border-radius:10px;background:var(--field);outline:none;font-size:14px;min-width:0}
+.sub-fields input:focus{border-color:var(--accent-text);box-shadow:0 0 0 3px color-mix(in srgb,var(--accent) 13%,transparent);background:var(--card)}
+.sub-fields small{font-size:11.5px;line-height:1.4;color:var(--muted)}
+.sub-block .edit-foot{margin:14px 0 0;padding:12px 0 0;border-bottom:0;border-top:1px solid var(--line);flex-wrap:wrap}
+
+/* ═════════ Phone layout (≤760px) ═════════ */
+@media (max-width:760px){
+  /* iOS zooms into inputs below 16px — keep them at 16px */
+  input,select,textarea{font-size:16px !important}
+  .sub-fields{grid-template-columns:1fr 1fr}
+  .sub-fields .wide{grid-column:1/-1}
+
+  /* top bar: logo on the left, bell + profile on the right, one tidy row */
+  .topbar{height:auto;min-height:60px;padding:10px 16px;gap:10px 8px;flex-wrap:wrap;align-items:center}
+  .topbar .mobile-logo{display:block;flex:1}
+  .topbar .top-context{display:none}
+  .top-actions{margin-left:auto;gap:8px}
+  .top-actions .palette-control,.top-actions .search,.top-actions .logout{display:none}
+  .top-actions .icon-btn{width:40px;height:40px}
+  .top-actions .profile{display:flex;padding:0;min-width:40px}
+  .top-actions .profile>div{display:none}
+  .top-actions .profile>span,.top-actions .profile .avatar-img{width:40px;height:40px;border-radius:12px}
+  .concept-tabs{order:3;width:100%}
+  .notify-pop{position:fixed;top:66px;left:12px;right:12px;width:auto}
+
+  /* “More” sheet: a scrollable bottom sheet with a dimmed backdrop */
+  .mobile-more-backdrop{position:fixed;inset:0;z-index:28;background:color-mix(in srgb,var(--secondary) 45%,transparent)}
+  .mobile-more{display:block;position:fixed;z-index:29;left:0;right:0;bottom:calc(68px + env(safe-area-inset-bottom));max-height:calc(100dvh - 150px);overflow-y:auto;padding:20px 16px 16px;background:var(--white);border-radius:22px 22px 0 0;box-shadow:0 -15px 50px color-mix(in srgb,var(--secondary) 18%,transparent)}
+  .mobile-more-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
+  .mobile-more-head span{color:var(--accent-text);font-size:10px;font-weight:800;letter-spacing:.14em}
+  .mobile-more-head h2{margin:4px 0 0;font-size:20px}
+  .mobile-more-head>button{padding:9px 14px;background:var(--line);border-radius:10px;font-size:13px;font-weight:700}
+  .mobile-more>div:last-child{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  .mobile-more>div:last-child>button{min-height:64px;padding:12px;display:grid;grid-template-columns:24px 1fr;align-items:center;gap:10px;text-align:left;border:1px solid var(--line);border-radius:14px;font-size:13.5px;font-weight:600;background:var(--card);color:var(--text)}
+  .mobile-more>div:last-child>button>svg:last-child{display:none}
+  .mobile-more>div:last-child>button.active{color:var(--accent-text);border-color:var(--accent);background:var(--accent-soft)}
+  .bottom-nav{padding-bottom:calc(6px + env(safe-area-inset-bottom));height:calc(68px + env(safe-area-inset-bottom))}
+  .bottom-nav button{flex:1;min-width:0;font-size:11.5px}
+  .app{padding-bottom:calc(84px + env(safe-area-inset-bottom))}
+}
+
+@media (max-width:760px){
+  /* tab bars wrap onto a second row instead of hiding tabs off-screen */
+  .page-tabs{flex-wrap:wrap;overflow:visible;width:100%}
+  .page-tabs button{flex:1 1 40%;padding:10px 8px;white-space:nowrap}
+  /* mood options: wrap (3 + 2) so all five are visible at once */
+  .mood-options{display:grid;grid-template-columns:repeat(3,1fr);overflow:visible}
+  .mood-options button{min-width:0}
+}

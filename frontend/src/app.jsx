@@ -265,6 +265,7 @@ function BottomNav({ page, setPage, onLogout }) {
   const main = NAV.slice(0, 4)
   return (
     <>
+      {open && <div className="mobile-more-backdrop" onClick={() => setOpen(false)} />}
       {open && (
         <div className="mobile-more" role="dialog" aria-label="All pages">
           <div className="mobile-more-head">
@@ -288,7 +289,7 @@ function BottomNav({ page, setPage, onLogout }) {
       )}
       <nav className="bottom-nav">
         {main.map(item => (
-          <button className={page === item.page ? 'active' : ''} key={item.page} onClick={() => setPage(item.page)}>
+          <button className={page === item.page && !open ? 'active' : ''} key={item.page} onClick={() => { setPage(item.page); setOpen(false) }}>
             <Icon name={item.icon} /><span>{item.label.replace('Marks & CGPA', 'Marks')}</span>
           </button>
         ))}

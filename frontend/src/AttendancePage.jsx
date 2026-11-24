@@ -29,6 +29,32 @@ const dateForDay = (dayKey) => {
 }
 
 const blankSubject = () => ({ name: '', professor: '', room: '', min_percentage: 75, credits: 4, total_planned: 60 })
+/** numbers typed into the form may be blank while editing; fall back to sensible defaults when saving */
+const cleanSubject = d => ({ ...d, name: (d.name || '').trim(), min_percentage: Number(d.min_percentage) || 75, credits: Number(d.credits) || 4, total_planned: parseInt(d.total_planned) || 60 })
+
+/** One subject's fields. Every field has a visible label + a one-line hint, so nobody has to guess what 75, 4 or 60 mean. */
+function SubjectFields({ d, set, namePlaceholder = 'e.g. Database Management' }) {
+  const num = k => e => set(k, e.target.value === '' ? '' : parseFloat(e.target.value))
+  return (
+    <div className="sub-fields">
+      <label className="wide"><span>Subject name</span>
+        <input value={d.name} placeholder={namePlaceholder} onChange={e => set('name', e.target.value)} /></label>
+      <label className="wide"><span>Professor <em>optional</em></span>
+        <input value={d.professor} placeholder="e.g. Prof. Sharma" onChange={e => set('professor', e.target.value)} /></label>
+      <label><span>Room <em>optional</em></span>
+        <input value={d.room} placeholder="e.g. 302" onChange={e => set('room', e.target.value)} /></label>
+      <label><span>Min. attendance %</span>
+        <input type="number" inputMode="decimal" min="0" max="100" value={d.min_percentage} onChange={num('min_percentage')} />
+        <small>What your college requires, usually 75</small></label>
+      <label><span>Credits</span>
+        <input type="number" inputMode="decimal" step="0.5" min="0" value={d.credits} onChange={num('credits')} />
+        <small>Weight of this subject in your CGPA</small></label>
+      <label><span>Total classes planned</span>
+        <input type="number" inputMode="numeric" min="1" value={d.total_planned} onChange={num('total_planned')} />
+        <small>Classes you expect in the whole semester</small></label>
+    </div>
+  )
+}
 
 /* ══════════════ ONBOARDING WIZARD ══════════════ */
 function OnboardingWizard({ onDone }) {
@@ -45,7 +71,7 @@ function OnboardingWizard({ onDone }) {
     setSaving(true)
     const out = []
     for (const s of subjects.filter(s => s.name.trim())) {
-      const res = await api.addSubject({ ...s, name: s.name.trim(), total_planned: s.total_planned || 60 })
+      const res = await api.addSubject(cleanSubject(s))
       if (res && res.id) out.push(res)
     }
     setSaved(out); setSaving(false); setStep(2)
@@ -91,15 +117,10 @@ function OnboardingWizard({ onDone }) {
           <Title eyebrow="STEP 1 OF 3" title="Add your subjects" />
           <p className="mini-note" style={{ marginTop: 6 }}>Enter every subject you have this semester. Leave extra rows empty.</p>
           <div style={{ marginTop: 18 }}>
-            <div className="edit-head">{['Subject name', 'Professor (optional)', 'Room', 'Min %', 'Credits', 'Total classes'].map(h => <span key={h}>{h}</span>)}</div>
             {subjects.map((s, i) => (
-              <div className="edit-row" key={i}>
-                <input placeholder={`Subject ${i + 1}`} value={s.name} onChange={e => upd(i, 'name', e.target.value)} />
-                <input placeholder="Prof. name" value={s.professor} onChange={e => upd(i, 'professor', e.target.value)} />
-                <input placeholder="Room 302" value={s.room} onChange={e => upd(i, 'room', e.target.value)} />
-                <input type="number" value={s.min_percentage} onChange={e => upd(i, 'min_percentage', parseFloat(e.target.value))} />
-                <input type="number" step="0.5" value={s.credits} onChange={e => upd(i, 'credits', parseFloat(e.target.value))} />
-                <input type="number" min="1" value={s.total_planned} onChange={e => upd(i, 'total_planned', parseInt(e.target.value) || 0)} />
+              <div className="sub-block" key={i}>
+                <div className="sub-block-title">Subject {i + 1}</div>
+                <SubjectFields d={s} set={(k, v) => upd(i, k, v)} />
               </div>
             ))}
           </div>
@@ -522,7 +543,7 @@ function SubjectsEditor({ subjects, onRefresh, flash }) {
 
   const saveOne = async (s) => {
     setBusy(s.id)
-    const d = drafts[s.id], orig = fromSubject(s), changes = {}
+    const d = cleanSubject(drafts[s.id]), orig = fromSubject(s), changes = {}
     Object.keys(d).forEach(k => { if (d[k] !== orig[k]) changes[k] = d[k] })
     const res = await api.updateSubject(s.id, changes)
     setBusy(null)
@@ -536,29 +557,20 @@ function SubjectsEditor({ subjects, onRefresh, flash }) {
   const addOne = async () => {
     if (!fresh.name.trim()) return
     setBusy('new')
-    const res = await api.addSubject({ ...fresh, name: fresh.name.trim() })
+    const res = await api.addSubject(cleanSubject(fresh))
     setBusy(null)
     if (res && res.detail) return flash('Could not add subject', true)
     setFresh(blankSubject()); flash(`${res.name} added — assign it in the Timetable section`); onRefresh()
   }
-  const head = <div className="edit-head">{['Subject', 'Professor', 'Room', 'Min %', 'Credits', 'Total classes'].map(h => <span key={h}>{h}</span>)}</div>
-
   return (
     <Card>
       <Title eyebrow="SUBJECTS & CLASSES" title="Your subjects" />
-      <div style={{ marginTop: 18 }}>{head}</div>
+      <div style={{ marginTop: 18 }}>
       {subjects.map(s => {
         const d = drafts[s.id] || fromSubject(s)
         return (
-          <div key={s.id}>
-            <div className="edit-row">
-              <input value={d.name} onChange={e => setField(s.id, 'name', e.target.value)} />
-              <input value={d.professor} placeholder="—" onChange={e => setField(s.id, 'professor', e.target.value)} />
-              <input value={d.room} placeholder="—" onChange={e => setField(s.id, 'room', e.target.value)} />
-              <input type="number" min="0" max="100" value={d.min_percentage} onChange={e => setField(s.id, 'min_percentage', parseFloat(e.target.value) || 0)} />
-              <input type="number" step="0.5" min="0" value={d.credits} onChange={e => setField(s.id, 'credits', parseFloat(e.target.value) || 0)} />
-              <input type="number" min="1" value={d.total_planned} onChange={e => setField(s.id, 'total_planned', parseInt(e.target.value) || 0)} />
-            </div>
+          <div className="sub-block" key={s.id}>
+            <SubjectFields d={d} set={(k, v) => setField(s.id, k, v)} />
             <div className="edit-foot">
               <small>{s.attended || 0} attended of {s.total_held || 0} held so far</small>
               <button className="small-action solid" disabled={!dirty(s) || busy === s.id} onClick={() => saveOne(s)}>{busy === s.id ? 'Saving…' : dirty(s) ? 'Save changes' : 'Saved'}</button>
@@ -567,15 +579,9 @@ function SubjectsEditor({ subjects, onRefresh, flash }) {
           </div>
         )
       })}
-      <div className="sub-label">Add another subject</div>
-      <div className="edit-row">
-        <input placeholder="Subject name" value={fresh.name} onChange={e => setFresh({ ...fresh, name: e.target.value })} />
-        <input placeholder="Professor" value={fresh.professor} onChange={e => setFresh({ ...fresh, professor: e.target.value })} />
-        <input placeholder="Room" value={fresh.room} onChange={e => setFresh({ ...fresh, room: e.target.value })} />
-        <input type="number" value={fresh.min_percentage} onChange={e => setFresh({ ...fresh, min_percentage: parseFloat(e.target.value) || 0 })} />
-        <input type="number" step="0.5" value={fresh.credits} onChange={e => setFresh({ ...fresh, credits: parseFloat(e.target.value) || 0 })} />
-        <input type="number" min="1" value={fresh.total_planned} onChange={e => setFresh({ ...fresh, total_planned: parseInt(e.target.value) || 0 })} />
       </div>
+      <div className="sub-label">Add another subject</div>
+      <div className="sub-block"><SubjectFields d={fresh} set={(k, v) => setFresh(f => ({ ...f, [k]: v }))} /></div>
       <button className="outline-action" disabled={!fresh.name.trim() || busy === 'new'} onClick={addOne}>+ Add subject</button>
     </Card>
   )

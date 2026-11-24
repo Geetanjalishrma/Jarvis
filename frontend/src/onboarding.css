@@ -73,3 +73,9 @@
   .ob-head{padding:14px 18px 0}.ob-foot{padding:12px 18px 16px}
   .ob-text-col h2{font-size:23px}
 }
+
+/* keep the footer (Back / Next) always on screen; only the middle scrolls */
+.ob-card{max-height:calc(100dvh - 20px)}
+.ob-body{overflow-y:auto;min-height:0;flex:1}
+.ob-head,.ob-foot{flex:none}
+@media (max-width:760px){.ob-overlay{padding:10px;place-items:center}}
