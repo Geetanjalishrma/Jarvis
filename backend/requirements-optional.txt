@@ -1,0 +1,7 @@
+# OPTIONAL heavy AI features — the app runs fine without these.
+#   openai-whisper  -> voice logging  (also needs ffmpeg installed on your PC)
+#   transformers+torch -> sentiment analysis of weekly check-ins
+# Install only if you want those features:  pip install -r requirements-optional.txt
+openai-whisper
+transformers
+torch

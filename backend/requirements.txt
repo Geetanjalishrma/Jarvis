@@ -1,0 +1,15 @@
+# Jarvis backend — core dependencies (everything needed to START the server)
+# Install with:  pip install -r requirements.txt
+fastapi>=0.110
+uvicorn[standard]>=0.29
+sqlalchemy>=2.0
+pydantic>=2.5
+python-multipart>=0.0.9      # REQUIRED by FastAPI for login form + voice upload; server will not start without it
+python-jose[cryptography]>=3.3.0
+bcrypt>=4.0.1                # password hashing (replaces passlib)
+python-dotenv>=1.0
+numpy>=1.26
+scikit-learn>=1.4
+joblib>=1.3
+google-generativeai>=0.8     # Gemini chat
+psycopg2-binary>=2.9         # PostgreSQL driver — only used when DATABASE_URL points to Postgres (deployment)

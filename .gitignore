@@ -1,0 +1,68 @@
+# ── SECRETS — never commit these ─────────────────────────────────────────────
+.env
+.env.local
+.env.production
+
+# ── BACKEND ───────────────────────────────────────────────────────────────────
+# Python cache
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.Python
+
+# Virtual environment
+venv/
+env/
+.venv/
+
+# Database — each developer has their own local copy
+backend/jarvis.db
+*.db
+*.sqlite3
+
+# Trained ML models — too large for git, retrain locally
+backend/jarvis_models/
+
+# Logs
+*.log
+
+# ── FRONTEND ──────────────────────────────────────────────────────────────────
+# Dependencies — installed via npm install
+frontend/node_modules/
+
+# Build output — generated via npm run build
+frontend/dist/
+frontend/build/
+
+# Vite cache
+frontend/.vite/
+
+# ── EDITOR & OS ───────────────────────────────────────────────────────────────
+# Mac
+.DS_Store
+.AppleDouble
+
+# Windows
+Thumbs.db
+desktop.ini
+
+# VS Code
+.vscode/
+*.code-workspace
+
+# JetBrains (PyCharm, WebStorm)
+.idea/
+*.iml
+
+# ── MISC ──────────────────────────────────────────────────────────────────────
+# Uploaded audio files from voice logging (temp files)
+backend/temp_audio/
+*.webm
+*.mp3
+*.wav
+*.m4a
+
+# Test coverage
+.coverage
+htmlcov/
