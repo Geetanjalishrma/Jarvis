@@ -236,7 +236,7 @@ function SceneryTab({ s }) {
             : <button className="sw-btn" onClick={() => study.playYouTube(yt)} disabled={!yt.trim()}>Play</button>}
         </div>
         {s.ytError && <p className="sw-err">{s.ytError}</p>}
-        {s.ytPlaying && <p className="sw-note">Playing your link — lower “Lo-fi music” above if you want only YouTube.</p>}
+        {s.ytPlaying && <p className="sw-note">Playing your link — lower “Lo-fi music” above if you want only YouTube. On a phone, if you hear nothing, tap play on the small video player at the bottom-left (phones block auto-start with sound).</p>}
       </section>
     </>
   )
@@ -269,7 +269,7 @@ export function StudyMiniBar({ page, setPage }) {
   const show = page !== 'study' && (s.running || s.playing || s.ytPlaying)
   return (
     <>
-      {s.ytPlaying && s.yt && <iframe className="sw-yt-host" title="Study music" src={s.yt} allow="autoplay; encrypted-media" />}
+      {s.ytPlaying && s.yt && <iframe className={`sw-yt-host ${page === 'study' ? 'show' : ''}`} title="Study music" src={s.yt} allow="autoplay; encrypted-media; picture-in-picture" allowFullScreen />}
       {show && (
         <div className="sw-mini" role="status">
           <button className="sw-mini-open" onClick={() => setPage('study')} title="Open Study with me">
