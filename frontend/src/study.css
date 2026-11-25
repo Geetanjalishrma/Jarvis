@@ -194,3 +194,7 @@ body.sw-noscroll { overflow: hidden; }
 @media (pointer: coarse), (max-width: 760px) {
   .sw-yt-host.show { left: 12px; bottom: 82px; width: 208px; height: 117px; opacity: 1; pointer-events: auto; z-index: 75; border-radius: 12px; box-shadow: 0 10px 30px #0006; background: #000; }
 }
+
+/* the stage is moved to <body> in fullscreen, so it must define its own highlight colours
+   (they used to come from .sw-page, which made the slider bars invisible in fullscreen) */
+.sw-stage { --sw-hi: color-mix(in srgb, var(--accent) 55%, #fff); --sw-hi2: color-mix(in srgb, var(--accent) 30%, #fff); }
