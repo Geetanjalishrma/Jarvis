@@ -334,8 +334,8 @@ export const parseYouTube = (url) => {
   if (!u) return null
   const list = u.match(/[?&]list=([A-Za-z0-9_-]+)/)
   const vid = u.match(/(?:v=|youtu\.be\/|embed\/|shorts\/)([A-Za-z0-9_-]{11})/)
-  if (list && !vid) return `https://www.youtube.com/embed/videoseries?list=${list[1]}&autoplay=1&loop=1`
-  if (vid) return `https://www.youtube.com/embed/${vid[1]}?autoplay=1&loop=1&playlist=${vid[1]}${list ? `&list=${list[1]}` : ''}`
+  if (list && !vid) return `https://www.youtube.com/embed/videoseries?list=${list[1]}&autoplay=1&loop=1&playsinline=1&rel=0`
+  if (vid) return `https://www.youtube.com/embed/${vid[1]}?autoplay=1&loop=1&playsinline=1&rel=0&playlist=${vid[1]}${list ? `&list=${list[1]}` : ''}`
   return null
 }
 
